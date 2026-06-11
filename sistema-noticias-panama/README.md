@@ -301,10 +301,11 @@ El proyecto cumple con los componentes principales del segundo parcial:
 
 ## Integrantes
 
-* Nombre del integrante 1
-* Nombre del integrante 2
-* Nombre del integrante 3
-* Nombre del integrante 4
+* Calderón, Ovidio
+* Fu, Winson
+* Huertas, José
+* Luo, Anie
+* Takata, Gabriela
 
 ## Curso
 
