@@ -121,7 +121,7 @@ if __name__ == "__main__":
         "https://www.tvn-2.com/tvmax/lpf/",
         "https://www.tvn-2.com/tvmax/futbol-internacional/",
         "https://www.tvn-2.com/tvmax/beisbol-nacional/",
-        "https://www.tvn-2.com/tvmax/beisbol/"
+        "https://www.tvn-2.com/tvmax/beisbol/",
         "https://www.tvn-2.com/tvmax/mas-deportes/"
     ]
     total_news = []
