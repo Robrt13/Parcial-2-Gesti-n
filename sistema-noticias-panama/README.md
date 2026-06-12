@@ -114,7 +114,6 @@ Después de recopilar las noticias, se realiza un proceso de limpieza para mejor
 * Normalización de fechas.
 * Limpieza de caracteres especiales.
 * Conversión de texto a minúsculas.
-* Organización de columnas.
 
 ### 3. Transformación de datos
 
