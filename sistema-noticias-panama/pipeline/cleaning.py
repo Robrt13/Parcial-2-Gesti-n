@@ -30,4 +30,5 @@ if __name__ == "__main__":
         [clean_data(pd.read_csv(source)) for source in sources],
         ignore_index=True
     )
+    df.drop_duplicates(subset=["titulo"], inplace=True)
     df.to_csv(f"{Path(__file__).parent}/../data/processed/noticias_panama_procesadas.csv", index=False)
