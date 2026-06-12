@@ -110,6 +110,7 @@ En esta etapa se recopilan noticias desde diferentes medios digitales panameños
 
 Después de recopilar las noticias, se realiza un proceso de limpieza para mejorar la calidad del dataset. Este proceso incluye:
 
+* Eliminación de noticias duplicadas.
 * Eliminación de registros incompletos.
 * Normalización de fechas.
 * Limpieza de caracteres especiales.
