@@ -197,7 +197,7 @@ El dashboard incluye:
 | url                | Enlace de la noticia                                |
 | categoria_predicha | Categoría asignada por el modelo                    |
 | sentimiento        | Sentimiento de la noticia                           |
-| palabras_clave     | Términos relevantes encontrados                     |
+| palabras_criticas  | Cantidad de palabras críticas en el texto           |
 | nivel_alerta       | Nivel de alerta asignado                            |
 | es_alerta          | Indica si la noticia representa una alerta          |
 
