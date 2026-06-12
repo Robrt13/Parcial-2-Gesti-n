@@ -120,12 +120,11 @@ Después de recopilar las noticias, se realiza un proceso de limpieza para mejor
 
 En esta etapa se generan nuevas columnas útiles para el análisis, como:
 
-* Longitud del texto.
 * Categoría predicha.
+* Cantidad de palabras críticas.
 * Sentimiento.
-* Palabras clave.
-* Nivel de alerta.
 * Estado de alerta.
+* Nivel de alerta.
 
 El resultado final se guarda en la carpeta `data/processed`.
 
