@@ -120,12 +120,11 @@ Después de recopilar las noticias, se realiza un proceso de limpieza para mejor
 
 En esta etapa se generan nuevas columnas útiles para el análisis, como:
 
-* Longitud del texto.
 * Categoría predicha.
+* Cantidad de palabras críticas.
 * Sentimiento.
-* Palabras clave.
-* Nivel de alerta.
 * Estado de alerta.
+* Nivel de alerta.
 
 El resultado final se guarda en la carpeta `data/processed`.
 
@@ -198,7 +197,7 @@ El dashboard incluye:
 | url                | Enlace de la noticia                                |
 | categoria_predicha | Categoría asignada por el modelo                    |
 | sentimiento        | Sentimiento de la noticia                           |
-| palabras_clave     | Términos relevantes encontrados                     |
+| palabras_criticas  | Cantidad de palabras críticas en el texto           |
 | nivel_alerta       | Nivel de alerta asignado                            |
 | es_alerta          | Indica si la noticia representa una alerta          |
 
