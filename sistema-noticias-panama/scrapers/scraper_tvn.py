@@ -69,7 +69,8 @@ def scrap_tvn_new_summary(url: str, session: requests.Session) -> dict:
         "titulo": "",
         "fecha": "",
         "categoria_original": "",
-        "texto": ""
+        "texto": "",
+        "url": url
     }
 
     response = session.get(url)
