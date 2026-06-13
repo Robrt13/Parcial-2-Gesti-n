@@ -1,36 +1,51 @@
-import re
-import unicodedata
-import pandas as pd
-from pathlib import Path
+from . import pd, Path
+from .commons import save_to_csv
+import unicodedata, re
+
+
+def merge_csv_data(sources: list[str]) -> pd.DataFrame:
+    return pd.concat([pd.read_csv(source) for source in sources])
+
+
+def remove_accents(text: str) -> str:
+    return unicodedata.normalize("NFD", text).encode("ascii", "ignore").decode("utf-8")
+
+
+def remove_special_characters(text: str) -> str:
+    return re.sub(r"[^a-zA-Z0-9\s.,;:!?\"'()\-]", "", text)
 
 
 def normalize_text(text: str) -> str:
-    text = unicodedata.normalize("NFD", text)
-    text = text.encode("ascii", "ignore").decode("utf-8")
-    text = re.sub(r"[^a-zA-Z0-9\s.,;:!?\"'()\-]", "", text)
+    text = remove_accents(text)
+    text = remove_special_characters(text)
     return text
 
+
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    df.dropna(subset=["titulo", "texto"], inplace=True)
+    cleaned_data = df.copy()
+    print(f"{'='*25}CLEANING PROCESS {'='*25}")
 
-    df["titulo"] = df["titulo"].str.lower().str.strip().apply(normalize_text)
-    df["texto"] = df["texto"].str.lower().str.strip().apply(normalize_text)
-    df["categoria_original"] = df["categoria_original"].str.lower().str.strip().apply(normalize_text)
-
+    cleaned_data = cleaned_data.dropna(subset=["titulo", "texto"])
+    cleaned_data = cleaned_data.drop_duplicates(subset=["titulo"])
+    cleaned_data["titulo"] = cleaned_data["titulo"].str.lower().str.strip().apply(normalize_text)
+    cleaned_data["texto"] = cleaned_data["texto"].str.lower().str.strip().apply(normalize_text)
+    cleaned_data["categoria_original"] = cleaned_data["categoria_original"].str.lower().str.strip().apply(normalize_text)
     #TODO: Normalización de fechas
 
-    return df
+    return cleaned_data
+
+
+def main():
+    FILE_DIR = Path(__file__).parent
+    SOURCES = [
+        f"{FILE_DIR}/../data/raw/noticias_tvn.csv"
+    ]
+    OUTPUT = f"{FILE_DIR}/../data/processed/noticias_panama_procesadas.csv"
+    
+    merged_data = merge_csv_data(SOURCES)
+    cleaned_data = clean_data(merged_data)
+    save_to_csv(cleaned_data, OUTPUT)
+
 
 if __name__ == "__main__":
-    sources = [
-        f"{Path(__file__).parent}/../data/raw/noticias_tvn.csv"
-    ]
-
-    processed_data = []
-    for source in sources:
-        print(f"Processing: {source}")
-        processed_data.append(clean_data(pd.read_csv(source)))
-
-    df = pd.concat(processed_data, ignore_index=True)
-    df.drop_duplicates(subset=["titulo"], inplace=True)
-    df.to_csv(f"{Path(__file__).parent}/../data/processed/noticias_panama_procesadas.csv", index=False)
+    main()
