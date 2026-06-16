@@ -25,12 +25,12 @@ OUTPUT_ANALIZADO = FILE_DIR / "../data/processed/noticias_panama_analizadas.csv"
 # ============================================================
 # CAMBIA ESTA VARIABLE SI QUIERES ANALIZAR MAS O MENOS NOTICIAS
 # POR CATEGORIA CON EL LLM.
-# En este caso queda en 4, como pidio el proyecto.
+# En este caso queda en 2, como pidio el proyecto.
 # ============================================================
-NOTICIAS_POR_CATEGORIA = 4
+NOTICIAS_POR_CATEGORIA = 2
 
 # Modelo Gemini que se va a usar para resumen y sentimiento
-MODELO_LLM = "gemini-2.5-flash"
+MODELO_LLM = "qwen3.5:0.8b"
 
 
 # ============================================================
@@ -101,8 +101,8 @@ def run_pipeline(
     print("=" * 70)
 
     print("\n[1/6] Ejecutando ingesta de datos...")
-    outputs = ingest_data(ingestion_configs)
-
+    # outputs = ingest_data(ingestion_configs)
+    outputs = [f"{FILE_DIR}/../data/raw/noticias_telemetro.csv", f"{FILE_DIR}/../data/raw/noticias_tvn.csv"]
     print("\n[2/6] Uniendo archivos CSV...")
     merged_data = merge_csv_data(outputs)
 
