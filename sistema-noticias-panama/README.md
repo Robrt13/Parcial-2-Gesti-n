@@ -63,7 +63,6 @@ El proyecto está desarrollado principalmente en Python y utiliza las siguientes
 ```text
 sistema-noticias-panama/
 │
-├── app.py
 ├── README.md
 ├── requirements.txt
 │
@@ -74,7 +73,8 @@ sistema-noticias-panama/
 │   │   └── noticias_laprensa.csv
 │   │
 │   └── processed/
-│       └── noticias_panama_procesadas.csv
+│       ├── noticias_panama_procesadas.csv
+│       └── noticias_panama_analizadas.csv
 │
 ├── scrapers/
 │   ├── scraper_tvn.py
@@ -88,14 +88,11 @@ sistema-noticias-panama/
 │   └── pipeline_main.py
 │
 ├── models/
-│   ├── category_classifier.py
-│   └── sentiment_analysis.py
+│   ├── alert_logic.py
+│   └── llm_news_analysis.py
 │
-├── dashboard/
-│   └── streamlit_app.py
-│
-└── docs/
-    └── documentacion_parcial.md
+└── dashboard/
+    └── streamlit_app.py
 ```
 
 ## Funcionamiento del sistema
@@ -112,7 +109,6 @@ Después de recopilar las noticias, se realiza un proceso de limpieza para mejor
 
 * Eliminación de noticias duplicadas.
 * Eliminación de registros incompletos.
-* Normalización de fechas.
 * Limpieza de caracteres especiales.
 * Conversión de texto a minúsculas.
 
@@ -126,22 +122,28 @@ En esta etapa se generan nuevas columnas útiles para el análisis, como:
 * Estado de alerta.
 * Nivel de alerta.
 
+Y se lematiza el contenido de las noticias para facilitar su análisis posterior por el LLM.
+
 El resultado final se guarda en la carpeta `data/processed`.
 
 ### 4. Análisis con Machine Learning
 
 El proyecto aplica una técnica de clasificación para organizar las noticias en diferentes categorías, tales como:
 
-* Política
-* Economía
+* Nacionales
+* Mundo
+* Deportes
+* Entretenimiento
+* Contenido exclusivo
+* Politica
+* Economia
 * Seguridad
 * Salud
-* Educación
-* Deportes
+* Educacion
 * Ambiente
-* Tecnología
+* Tecnologia
+* Otro
 
-Para esta clasificación se puede utilizar un modelo basado en TF-IDF junto con algoritmos como Logistic Regression o Naive Bayes.
 
 ### 5. Análisis de sentimiento
 
