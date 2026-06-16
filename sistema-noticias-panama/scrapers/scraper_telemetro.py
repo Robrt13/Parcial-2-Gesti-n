@@ -113,8 +113,8 @@ def obtener_datos_noticia(url: str) -> dict:
 
 def scrap_telemetro_news_section(url: str, pages: int = 1) -> list[dict]:
     urls = obtener_links_pagina(url)
-    for page in range(2, pages + 1):
-        urls.extend(obtener_links_pagina(f"{url}/{page}"))
+    for page in range(pages):
+        urls.extend(obtener_links_pagina(f"{url}/{page + 2}"))
 
     return [obtener_datos_noticia(url) for url in urls]
 
