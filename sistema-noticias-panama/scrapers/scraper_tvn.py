@@ -1,7 +1,7 @@
 import requests
 import re
 from pathlib import Path
-from .commons import create_html_parser, save_to_csv
+from .commons import start_session, create_html_parser, save_to_csv
 
 HEADERS: dict = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -21,12 +21,6 @@ CATEGORIAS = [
         "https://www.tvn-2.com/tvmax/beisbol/",
         "https://www.tvn-2.com/tvmax/mas-deportes/"
     ]
-
-
-def start_session(headers: dict) -> requests.Session:
-    session = requests.Session()
-    session.headers.update(headers)
-    return session
 
 
 def get_tvn_new_url(summary) -> str:
