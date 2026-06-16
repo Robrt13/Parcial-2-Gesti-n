@@ -101,8 +101,8 @@ def run_pipeline(
     print("=" * 70)
 
     print("\n[1/6] Ejecutando ingesta de datos...")
-    # outputs = ingest_data(ingestion_configs)
-    outputs = [f"{FILE_DIR}/../data/raw/noticias_telemetro.csv", f"{FILE_DIR}/../data/raw/noticias_tvn.csv"]
+    outputs = ingest_data(ingestion_configs)
+
     print("\n[2/6] Uniendo archivos CSV...")
     merged_data = merge_csv_data(outputs)
 
