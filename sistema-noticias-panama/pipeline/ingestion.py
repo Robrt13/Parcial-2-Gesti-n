@@ -1,6 +1,7 @@
 from . import pd, Path
 from .commons import save_to_csv
 from scrapers import scrap_tvn_news_section
+from scrapers import scrap_laprensa_news_section
 
 
 def scrape_sources(sources: list[dict], scraper: function) -> list[dict]:
@@ -47,7 +48,27 @@ def main():
                     {"url": "https://www.tvn-2.com/tvmax/mas-deportes/",         "pages": 1}
                 ]
             }
+        },
+
+        {
+            "type": "web_scraping",
+            "config": {
+                "scraper": scrap_laprensa_news_section,
+                "output": f"{FILE_DIR}/../data/raw/noticias_laprensa.csv",
+                "sources": [
+                    {"url": "https://www.prensa.com/sociedad/",                     "pages": 1},
+                    {"url": "https://www.prensa.com/comunicados/",                  "pages": 1},
+                    {"url": "https://www.prensa.com/judiciales/",                   "pages": 1},
+                    {"url": "https://www.prensa.com/politica/",                     "pages": 1},
+                    {"url": "https://www.prensa.com/economia/",                     "pages": 1},
+                    {"url": "https://www.prensa.com/mundo/",                        "pages": 1},
+                    {"url": "https://www.prensa.com/deportes/",                     "pages": 1},
+                    {"url": "https://www.prensa.com/unidad-investigativa/",         "pages": 1},
+                    {"url": "https://www.prensa.com/vivir/",                        "pages": 1}
+                ]
+            }
         }
+
     ]
     
     ingest_data(INGESTION_CONFIGS)
