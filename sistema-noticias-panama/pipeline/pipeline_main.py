@@ -1,15 +1,12 @@
 from pathlib import Path
+from .commons import save_to_csv
 
-from scrapers import scrap_tvn_news_section
-from scrapers import scrap_laprensa_news_section
-from ingestion import ingest_data
-from cleaning import merge_csv_data, clean_data
-from transformation import transform_data
-from commons import save_to_csv
-from pipeline.ingestion import ingest_data
-from pipeline.cleaning import merge_csv_data, clean_data
-from pipeline.transformation import transform_data
-from pipeline.commons import save_to_csv
+from scrapers import scrap_tvn_news_section, CATEGORIAS_tvn, scrap_telemetro_news_section, CATEGORIAS_tlm, scrap_laprensa_news_section, CATEGORIAS_lp
+
+from .ingestion import ingest_data
+from .cleaning import merge_csv_data, clean_data
+from .transformation import transform_data
+
 from models.llm_news_analysis import analizar_csv
 
 
@@ -45,19 +42,25 @@ INGESTION_CONFIGS = [
         "type": "web_scraping",
         "config": {
             "scraper": scrap_tvn_news_section,
-            "output": str(FILE_DIR / "../data/raw/noticias_tvn.csv"),
-            "sources": [
-                {"url": "https://www.tvn-2.com/nacionales/", "pages": 1},
-                {"url": "https://www.tvn-2.com/mundo/", "pages": 1},
-                {"url": "https://www.tvn-2.com/contenido-exclusivo/", "pages": 1},
-                {"url": "https://www.tvn-2.com/entretenimiento/", "pages": 1},
-                {"url": "https://www.tvn-2.com/tvmax/lpf/", "pages": 1},
-                {"url": "https://www.tvn-2.com/tvmax/futbol-internacional/", "pages": 1},
-                {"url": "https://www.tvn-2.com/tvmax/beisbol-nacional/", "pages": 1},
-                {"url": "https://www.tvn-2.com/tvmax/beisbol/", "pages": 1},
-                {"url": "https://www.tvn-2.com/tvmax/mas-deportes/", "pages": 1},
-            ],
-        },
+            "output": f"{FILE_DIR}/../data/raw/noticias_tvn.csv",
+            "sources": [{"url": categoria, "pages": 1} for categoria in CATEGORIAS_tvn]
+        }
+    },
+    {
+        "type": "web_scraping",
+        "config": {
+            "scraper": scrap_telemetro_news_section,
+            "output": f"{FILE_DIR}/../data/raw/noticias_telemetro.csv",
+            "sources": [{"url": categoria, "pages": 1} for categoria in CATEGORIAS_tlm]
+        }
+    },
+    {
+        "type": "web_scraping",
+        "config": {
+            "scraper": scrap_laprensa_news_section,
+            "output": f"{FILE_DIR}/../data/raw/noticias_laprensa.csv",
+            "sources": [{"url": categoria, "pages": 1} for categoria in CATEGORIAS_lp]
+        }
     }
 ]
 
@@ -132,49 +135,6 @@ def run_pipeline(
 
 
 def main():
-    FILE_DIR = Path(__file__).parent
-    INGESTION_CONFIGS = [
-        {
-            "type": "web_scraping",
-            "config": {
-                "scraper": scrap_tvn_news_section,
-                "output": f"{FILE_DIR}/../data/raw/noticias_tvn.csv",
-                "sources": [
-                    {"url": "https://www.tvn-2.com/nacionales/",                 "pages": 1},
-                    {"url": "https://www.tvn-2.com/mundo/",                      "pages": 1},
-                    {"url": "https://www.tvn-2.com/contenido-exclusivo/",        "pages": 1},
-                    {"url": "https://www.tvn-2.com/entretenimiento/",            "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/lpf/",                  "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/futbol-internacional/", "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/beisbol-nacional/",     "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/beisbol/",              "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/mas-deportes/",         "pages": 1}
-                ]
-            }
-        },
-
-        {
-            "type": "web_scraping",
-            "config": {
-                "scraper": scrap_laprensa_news_section,
-                "output": f"{FILE_DIR}/../data/raw/noticias_laprensa.csv",
-                "sources": [
-                    {"url": "https://www.prensa.com/sociedad/",                   "pages": 1},
-                    {"url": "https://www.prensa.com/comunicados/",                "pages": 1},
-                    {"url": "https://www.prensa.com/judiciales/",                 "pages": 1},
-                    {"url": "https://www.prensa.com/politica/",                   "pages": 1},
-                    {"url": "https://www.prensa.com/economia/",                   "pages": 1},
-                    {"url": "https://www.prensa.com/mundo/",                      "pages": 1},
-                    {"url": "https://www.prensa.com/deportes/",                   "pages": 1},
-                    {"url": "https://www.prensa.com/unidad-investigativa/",       "pages": 1},
-                    {"url": "https://www.prensa.com/vivir/",                      "pages": 1}
-                ]
-            }
-        }
-    ]
-    OUTPUT = f"{FILE_DIR}/../data/processed/noticias_panama_procesadas.csv"
-
-    run_pipeline(INGESTION_CONFIGS, OUTPUT)
     run_pipeline(
         ingestion_configs=INGESTION_CONFIGS,
         output_procesado=OUTPUT_PROCESADO,

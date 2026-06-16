@@ -1,7 +1,8 @@
 from . import pd, Path
-from .commons import save_to_csv
-from scrapers import scrap_tvn_news_section
-from scrapers import scrap_laprensa_news_section
+from scrapers import save_to_csv
+from scrapers import scrap_tvn_news_section, CATEGORIAS_tvn
+from scrapers import scrap_telemetro_news_section, CATEGORIAS_tlm
+from scrapers import scrap_laprensa_news_section, CATEGORIAS_lp
 
 
 def scrape_sources(sources: list[dict], scraper: function) -> list[dict]:
@@ -21,8 +22,7 @@ def ingest_data(ingestion_configs: list[dict]) -> list[str]:
             scraping = ingestion["config"]
 
             data = scrape_sources(scraping["sources"], scraping["scraper"])
-            df = pd.DataFrame(data)
-            save_to_csv(df, scraping["output"])
+            save_to_csv(data, scraping["output"])
             outputs.append(scraping["output"])
     
     return outputs
@@ -36,39 +36,25 @@ def main():
             "config": {
                 "scraper": scrap_tvn_news_section,
                 "output": f"{FILE_DIR}/../data/raw/noticias_tvn.csv",
-                "sources": [
-                    {"url": "https://www.tvn-2.com/nacionales/",                 "pages": 1},
-                    {"url": "https://www.tvn-2.com/mundo/",                      "pages": 1},
-                    {"url": "https://www.tvn-2.com/contenido-exclusivo/",        "pages": 1},
-                    {"url": "https://www.tvn-2.com/entretenimiento/",            "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/lpf/",                  "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/futbol-internacional/", "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/beisbol-nacional/",     "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/beisbol/",              "pages": 1},
-                    {"url": "https://www.tvn-2.com/tvmax/mas-deportes/",         "pages": 1}
-                ]
+                "sources": [{"url": categoria, "pages": 1} for categoria in CATEGORIAS_tvn]
             }
         },
-
+        {
+            "type": "web_scraping",
+            "config": {
+                "scraper": scrap_telemetro_news_section,
+                "output": f"{FILE_DIR}/../data/raw/noticias_telemetro.csv",
+                "sources": [{"url": categoria, "pages": 1} for categoria in CATEGORIAS_tlm]
+            }
+        },
         {
             "type": "web_scraping",
             "config": {
                 "scraper": scrap_laprensa_news_section,
                 "output": f"{FILE_DIR}/../data/raw/noticias_laprensa.csv",
-                "sources": [
-                    {"url": "https://www.prensa.com/sociedad/",                     "pages": 1},
-                    {"url": "https://www.prensa.com/comunicados/",                  "pages": 1},
-                    {"url": "https://www.prensa.com/judiciales/",                   "pages": 1},
-                    {"url": "https://www.prensa.com/politica/",                     "pages": 1},
-                    {"url": "https://www.prensa.com/economia/",                     "pages": 1},
-                    {"url": "https://www.prensa.com/mundo/",                        "pages": 1},
-                    {"url": "https://www.prensa.com/deportes/",                     "pages": 1},
-                    {"url": "https://www.prensa.com/unidad-investigativa/",         "pages": 1},
-                    {"url": "https://www.prensa.com/vivir/",                        "pages": 1}
-                ]
+                "sources": [{"url": categoria, "pages": 1} for categoria in CATEGORIAS_lp]
             }
         }
-
     ]
     
     ingest_data(INGESTION_CONFIGS)

@@ -1,67 +1,64 @@
 import requests
 import re
-import csv
-import time
-from bs4 import BeautifulSoup
 from pathlib import Path
+from .commons import create_html_parser, save_to_csv
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Referer": "https://www.telemetro.com/nacionales",
     "Accept": "application/json, text/plain, */*",
-    "X-Requested-With": "XMLHttpRequest",
+    "X-Requested-With": "XMLHttpRequest"
 }
 
 CATEGORIAS = [
-    "nacionales",
-    "internacionales",
-    "actualidad",
-    "economia",
-    "deportes",
-    "politica",
-    "entretenimiento",
+    "https://www.telemetro.com/nacionales",
+    "https://www.telemetro.com/internacionales",
+    "https://www.telemetro.com/actualidad",
+    "https://www.telemetro.com/economia",
+    "https://www.telemetro.com/deportes",
+    "https://www.telemetro.com/politica",
+    "https://www.telemetro.com/entretenimiento"
 ]
-
-MONTHS = {
-    "enero": "01", "febrero": "02", "marzo": "03", "abril": "04",
-    "mayo": "05", "junio": "06", "julio": "07", "agosto": "08",
-    "septiembre": "09", "octubre": "10", "noviembre": "11", "diciembre": "12",
-}
 
 
 def parse_telemetro_date(raw_date: str) -> str:
-    match = re.search(r"(\d{1,2}) de (\w+) de (\d{4})", raw_date)
+    MONTHS = {
+        "enero": "01",
+        "febrero": "02",
+        "marzo": "03",
+        "abril": "04",
+        "mayo": "05",
+        "junio": "06",
+        "julio": "07",
+        "agosto": "08",
+        "septiembre": "09",
+        "octubre": "10",
+        "noviembre": "11",
+        "diciembre": "12"
+    }
+    DATE_PATTERN = r"(\d{1,2}) de (\w+) de (\d{4})"
+
+    match = re.search(DATE_PATTERN, raw_date)
     if not match:
         return ""
+    
     day = match.group(1).zfill(2)
     month = MONTHS.get(match.group(2).lower(), "")
     year = match.group(3)
+
     if not month:
         return ""
+    
     return f"{year}-{month}-{day}"
 
 
-def obtener_links_categoria(categoria):
-    url = f"https://www.telemetro.com/{categoria}"
-    response = requests.get(url, headers=HEADERS)
-    response.encoding = "utf-8"
-    soup = BeautifulSoup(response.text, "html.parser")
-
-    links = []
-    noticias = soup.find_all("h2", class_="news-article__title")
-    for noticia in noticias:
-        enlace = noticia.find("a")
-        if enlace:
-            links.append(enlace["href"])
-    return links
-
-
-def obtener_links_pagina(url):
+def obtener_links_pagina(url: str) -> list[str]:
     response = requests.get(url, headers=HEADERS)
     if response.status_code != 200:
         return []
+    
     response.encoding = "utf-8"
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = create_html_parser(response.text)
 
     links = []
     noticias = soup.find_all("h2", class_="news-article__title")
@@ -72,71 +69,68 @@ def obtener_links_pagina(url):
     return links
 
 
-def obtener_datos_noticia(url, categoria):
+def obtener_datos_noticia(url: str) -> dict:
     response = requests.get(url, headers=HEADERS)
+    if response.status_code != 200:
+        return {
+            "medio": "Telemetro",
+            "titulo": "",
+            "fecha": "",
+            "categoria_original": "",
+            "texto": "",
+            "url": url
+        }
     response.encoding = "utf-8"
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = create_html_parser(response.text)
 
     titulo = soup.find("h1", class_="news-headline__title")
     fecha = soup.find("span", class_="news-headline__date")
-    categoria_original = soup.find("span", class_="news-headline__topic")
+    categoria = soup.find("span", class_="news-headline__topic")
+    categoria_original = categoria.text.replace("\xa0", " ").strip().strip("-").strip() if categoria else url.rstrip("/").split("/")[-1]
 
-    # Texto completo: múltiples article.article-body, luego fallback al resumen
     cuerpos = soup.find_all("article", class_="article-body")
     if cuerpos:
-        parrafos = [p.text.strip() for c in cuerpos for p in c.find_all("p") if p.text.strip()]
+        parrafos = [
+            parrafo.text.strip() for cuerpo in cuerpos
+            for parrafo in cuerpo.find_all("p")
+            if parrafo.text.strip()
+        ]
         texto = "\n".join(parrafos)
     else:
-        contenedor = soup.find("h2", class_="news-headline__article-summary")
-        parrafo = contenedor.find("p") if contenedor else None
+        resumen = soup.find("h2", class_="news-headline__article-summary")
+        parrafo = resumen.find("p") if resumen else None
         texto = parrafo.text.strip() if parrafo else ""
 
-    cat = categoria_original.text.replace("\xa0", " ").strip().strip("-").strip() if categoria_original else categoria
-
     return {
+        "medio": "Telemetro",
         "titulo": titulo.text.strip() if titulo else "",
         "fecha": parse_telemetro_date(fecha.text.strip()) if fecha else "",
+        "categoria_original": categoria_original,
         "texto": texto,
-        "url": url,
-        "medio": "Telemetro",
-        "categoria_original": cat,
+        "url": url
     }
 
 
-def scrap_telemetro_news_section(url: str, pages: int = 1) -> list:
-    categoria = url.rstrip("/").split("/")[-1]
+def scrap_telemetro_news_section(url: str, pages: int = 1) -> list[dict]:
+    urls = obtener_links_pagina(url)
+    for page in range(pages):
+        urls.extend(obtener_links_pagina(f"{url}/{page + 2}"))
 
-    links = obtener_links_pagina(url)
-    for page in range(2, pages + 1):
-        links.extend(obtener_links_pagina(f"{url}/{page}"))
-
-    return [obtener_datos_noticia(link, categoria) for link in links if link]
+    return [obtener_datos_noticia(url) for url in urls]
 
 
-def scraper_telemetro():
-    resultados = []
-    OUTPUT = Path(__file__).parent / "../data/raw/noticias_telemetro.csv"
+def main():
+    FILE_DIR = Path(__file__).parent
+    OUTPUT = f"{FILE_DIR}/../data/raw/noticias_telemetro.csv"
 
+    noticias = []
     for categoria in CATEGORIAS:
-        print(f"categoría: {categoria}")
-        links = obtener_links_categoria(categoria)
+        print(f"{'='*25} SCRAPING: {categoria} {'='*25}")
+        noticias_categoria = scrap_telemetro_news_section(categoria)
+        noticias.extend(noticias_categoria)
 
-        for link in links:
-            print(f"  → {link}")
-            datos = obtener_datos_noticia(link, categoria)
-            resultados.append(datos)
-            time.sleep(1)
-
-    with open(OUTPUT, "w", newline="", encoding="utf-8") as f:
-        campos = ["fecha", "medio", "titulo", "categoria_original", "texto"]
-        writer = csv.DictWriter(f, fieldnames=campos)
-        writer.writeheader()
-        writer.writerows(resultados)
-
-    print(f"\nListo. {len(resultados)} noticias guardadas.")
+    save_to_csv(noticias, OUTPUT)
 
 
 if __name__ == "__main__":
-    import sys
-    sys.stdout.reconfigure(encoding="utf-8")
-    scraper_telemetro()
+    main()

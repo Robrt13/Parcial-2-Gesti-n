@@ -1,7 +1,7 @@
-from . import save_to_csv
-from bs4 import BeautifulSoup
+import requests
+import re
 from pathlib import Path
-import requests, re, pandas as pd
+from .commons import start_session, create_html_parser, save_to_csv
 
 HEADERS: dict = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -10,18 +10,20 @@ HEADERS: dict = {
     "X-Requested-With": "XMLHttpRequest",
 }
 
+CATEGORIAS = [
+        "https://www.tvn-2.com/nacionales/",
+        "https://www.tvn-2.com/mundo/",
+        "https://www.tvn-2.com/contenido-exclusivo/",
+        "https://www.tvn-2.com/entretenimiento/",
+        "https://www.tvn-2.com/tvmax/lpf/",
+        "https://www.tvn-2.com/tvmax/futbol-internacional/",
+        "https://www.tvn-2.com/tvmax/beisbol-nacional/",
+        "https://www.tvn-2.com/tvmax/beisbol/",
+        "https://www.tvn-2.com/tvmax/mas-deportes/"
+    ]
 
-def start_session(headers: dict) -> requests.Session:
-    session = requests.Session()
-    session.headers.update(headers)
-    return session
 
-
-def create_html_parser(html: str) -> BeautifulSoup:
-    return BeautifulSoup(html, "html.parser")
-
-
-def get_tvn_new_url(summary: BeautifulSoup) -> str:
+def get_tvn_new_url(summary) -> str:
     tag = summary.find("a", class_="title")
     if not tag:
         return ""
@@ -50,8 +52,12 @@ def parse_tvn_date(raw_date: str) -> str:
         return ""
     
     day = match.group(1).zfill(2)
-    month = MONTHS.get(match.group(2).lower())
+    month = MONTHS.get(match.group(2).lower(), "")
     year = match.group(3)
+
+    if not month:
+        return ""
+    
     return f"{year}-{month}-{day}"
 
 
@@ -64,42 +70,34 @@ def get_tvn_category(url: str) -> str:
 
 
 def scrap_tvn_new_summary(url: str, session: requests.Session) -> dict:
-    data = {
-        "medio": "TVN",
-        "titulo": "",
-        "fecha": "",
-        "categoria_original": "",
-        "texto": "",
-        "url": url
-    }
-
     response = session.get(url)
     if response.status_code != 200:
-        return data
+        return {
+            "medio": "TVN",
+            "titulo": "",
+            "fecha": "",
+            "categoria_original": "",
+            "texto": "",
+            "url": url
+        }
 
     html = create_html_parser(response.text)
 
     title = html.find("h1")
-    if title:
-        data["titulo"] = title.text.strip()
-    
     date = html.find("span", class_="published")
-    if date:
-        data["fecha"] = parse_tvn_date(date.text.strip())
-
-    data["categoria_original"] = get_tvn_category(url)
-
     content = html.find("div", class_="bbnx-body")
-    if not content:
-        return data
-    
-    paragraphs = content.find_all("p")
-    data["texto"] = "\n".join([paragraph.text.strip() for paragraph in paragraphs])
 
-    return data
+    return {
+        "medio": "TVN",
+        "titulo": title.text.strip() if title else "",
+        "fecha": parse_tvn_date(date.text.strip()) if date else "",
+        "categoria_original": get_tvn_category(url),
+        "texto": "\n".join([paragraph.text.strip() for paragraph in content.find_all("p")]) if content else "",
+        "url": url
+    }
 
 
-def scrap_tvn_news_chunk(html: BeautifulSoup, session: requests.Session) -> list[dict]:
+def scrap_tvn_news_chunk(html, session: requests.Session) -> list[dict]:
     urls = [get_tvn_new_url(new) for new in html.find_all("article", class_="content text-side")]
     return [scrap_tvn_new_summary(url, session) for url in urls if url]
 
@@ -162,28 +160,16 @@ def scrap_tvn_news_section(url: str, pages: int = 1) -> list[dict]:
 
 
 def main():
-    SOURCES = [
-        "https://www.tvn-2.com/nacionales/",
-        "https://www.tvn-2.com/mundo/",
-        "https://www.tvn-2.com/contenido-exclusivo/",
-        "https://www.tvn-2.com/entretenimiento/",
-        "https://www.tvn-2.com/tvmax/lpf/",
-        "https://www.tvn-2.com/tvmax/futbol-internacional/",
-        "https://www.tvn-2.com/tvmax/beisbol-nacional/",
-        "https://www.tvn-2.com/tvmax/beisbol/",
-        "https://www.tvn-2.com/tvmax/mas-deportes/"
-    ]
     FILE_DIR = Path(__file__).parent
     OUTPUT = f"{FILE_DIR}/../data/raw/noticias_tvn.csv"
 
-    total_news = []
-    for source in SOURCES:
-        print(f"{'='*25} SCRAPING: {source} {'='*25}")
-        processed_news = scrap_tvn_news_section(source)
-        total_news.extend(processed_news)
-    df = pd.DataFrame(total_news)
+    news = []
+    for categoria in CATEGORIAS:
+        print(f"{'='*25} SCRAPING: {categoria} {'='*25}")
+        section_news = scrap_tvn_news_section(categoria)
+        news.extend(section_news)
 
-    save_to_csv(df, OUTPUT)
+    save_to_csv(news, OUTPUT)
 
 
 if __name__ == "__main__":

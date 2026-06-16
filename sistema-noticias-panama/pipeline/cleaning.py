@@ -39,6 +39,7 @@ def main():
     FILE_DIR = Path(__file__).parent
     SOURCES = [
         f"{FILE_DIR}/../data/raw/noticias_tvn.csv",
+        f"{FILE_DIR}/../data/raw/noticias_telemetro.csv",
         f"{FILE_DIR}/../data/raw/noticias_laprensa.csv"
     ]
     OUTPUT = f"{FILE_DIR}/../data/processed/noticias_panama_procesadas.csv"
