@@ -1,6 +1,6 @@
-from . import pd, Path
+import pandas as pd, unicodedata, re
+from pathlib import Path
 from .commons import save_to_csv
-import unicodedata, re
 
 
 def merge_csv_data(sources: list[str]) -> pd.DataFrame:

@@ -1,4 +1,5 @@
-from . import pd, Path
+import pandas as pd
+from pathlib import Path
 from scrapers import save_to_csv
 from scrapers import scrap_tvn_news_section, CATEGORIAS_tvn
 from scrapers import scrap_telemetro_news_section, CATEGORIAS_tlm

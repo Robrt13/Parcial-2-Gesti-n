@@ -1,6 +1,6 @@
-from . import pd, Path
+import pandas as pd, spacy
+from pathlib import Path
 from .commons import save_to_csv
-import spacy
 
 LEMMATIZABLE = ["texto"]
 
