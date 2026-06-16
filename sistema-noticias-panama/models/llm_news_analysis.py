@@ -34,6 +34,7 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 
 # Columna que se usara para agrupar las noticias.
 COLUMNA_CATEGORIA = "categoria_original"
+COLUMNA_MEDIO = "medio"
 
 # Rutas por defecto.
 INPUT_DEFAULT = "data/processed/noticias_panama_procesadas.csv"
@@ -217,9 +218,10 @@ Texto:
     }
 
 
-def seleccionar_noticias_por_categoria(
+def seleccionar_noticias_por_categoria_por_medio(
     df: pd.DataFrame,
     columna_categoria: str = COLUMNA_CATEGORIA,
+    columna_medio: str = COLUMNA_MEDIO,
     cantidad_por_categoria: int = NOTICIAS_POR_CATEGORIA,
 ) -> pd.DataFrame:
     """
@@ -242,7 +244,7 @@ def seleccionar_noticias_por_categoria(
     )
 
     muestra = (
-        df.groupby(columna_categoria, group_keys=False)
+        df.groupby([columna_categoria, columna_medio], group_keys=False)
         .head(cantidad_por_categoria)
         .reset_index(drop=True)
     )
@@ -292,9 +294,10 @@ def analizar_dataframe(
     modelo: str = MODELO_LOCAL,
     tiempo_espera: int = TIEMPO_ESPERA_SEGUNDOS,
 ) -> pd.DataFrame:
-    muestra = seleccionar_noticias_por_categoria(
+    muestra = seleccionar_noticias_por_categoria_por_medio(
         df=df,
         columna_categoria=COLUMNA_CATEGORIA,
+        columna_medio=COLUMNA_MEDIO,
         cantidad_por_categoria=cantidad_por_categoria,
     )
 
