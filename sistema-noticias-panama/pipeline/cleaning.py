@@ -30,7 +30,6 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     cleaned_data["titulo"] = cleaned_data["titulo"].str.lower().str.strip().apply(normalize_text)
     cleaned_data["texto"] = cleaned_data["texto"].str.lower().str.strip().apply(normalize_text)
     cleaned_data["categoria_original"] = cleaned_data["categoria_original"].str.lower().str.strip().apply(normalize_text)
-    #TODO: Normalización de fechas
 
     return cleaned_data
 
