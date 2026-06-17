@@ -33,6 +33,7 @@ def calcular_alerta(palabras_criticas: int, sentimiento: str) -> tuple[bool, str
         }
     }
     
+    rango_palabras_criticas = palabras_criticas if palabras_criticas < 3 else 3
     sentimiento_negativo = sentimiento.strip().lower() == "negativo"
     nivel_alerta = ALERTAS[palabras_criticas][sentimiento_negativo]
     return nivel_alerta != "sin alerta", nivel_alerta
