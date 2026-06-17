@@ -101,7 +101,7 @@ El sistema funciona mediante un pipeline de datos dividido en varias etapas:
 
 ### 1. Ingesta de datos
 
-En esta etapa se recopilan noticias desde diferentes medios digitales panameños utilizando web scraping. Cada scraper extrae información básica de las noticias y la almacena en archivos CSV dentro de la carpeta `data/raw`.
+En esta etapa se recopilan noticias desde diferentes medios digitales panameños utilizando web scraping. Cada scraper extrae información básica de las noticias y la almacena en archivos CSV`.
 
 ### 2. Limpieza de datos
 
@@ -123,8 +123,6 @@ En esta etapa se generan nuevas columnas útiles para el análisis, como:
 * Nivel de alerta.
 
 Y se lematiza el contenido de las noticias para facilitar su análisis posterior por el LLM.
-
-El resultado final se guarda en la carpeta `data/processed`.
 
 ### 4. Análisis con Machine Learning
 
