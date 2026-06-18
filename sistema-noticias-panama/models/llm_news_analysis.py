@@ -83,22 +83,18 @@ def verificar_modelo_instalado(modelo: str) -> None:
 
 
 def llamar_ollama(prompt: str, modelo: str) -> str:
-    OLLAMA_URL = "http://localhost:11434/api/generate"
-
-    payload = {
-        "model": modelo,
-        "prompt": prompt,
-        "stream": False,
-        "format": "json",
-        "think": False,
-        "options": {
+    response = ollama.generate(
+        model=modelo,
+        prompt=prompt,
+        stream=False,
+        format="json",
+        think=False,
+        options={
             "temperature": 0,
             "num_predict": 300,
         }
-    }
-    response = requests.post(OLLAMA_URL, json=payload, timeout=180)
-    data = response.json()
-    return data.get("response", "")
+    )
+    return response["response"]
 
 
 def analizar_noticia_con_llm(titulo: str, texto: str, modelo: str) -> dict:
