@@ -49,8 +49,8 @@ st.sidebar.header("Filtros")
 
 categorias = st.sidebar.multiselect(
     "Categoría",
-    options=df["categoria_predicha"].unique(),
-    default=df["categoria_predicha"].unique()
+    options=sorted(df["categoria_original"].unique()),
+    default=sorted(df["categoria_original"].unique())
 )
 
 medios = st.sidebar.multiselect(
@@ -70,7 +70,7 @@ sentimientos = st.sidebar.multiselect(
 # ============================================================
 
 df_filtrado = df[
-    (df["categoria_predicha"].isin(categorias))
+    (df["categoria_original"].isin(categorias))
     & (df["medio"].isin(medios))
     & (df["sentimiento"].isin(sentimientos))
 ]
@@ -79,14 +79,18 @@ df_filtrado = df[
 # PESTAÑAS
 # ============================================================
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(
     [
         "Medios",
         "Categorías",
         "Sentimientos",
         "Fechas",
+        "Aciertos de categoría",
         "Noticias",
-        "Alertas"
+        "Alertas",
+        "Palabras críticas",
+        "Precisión por medio",
+        "Alertas por fuente"
     ]
 )
 
@@ -104,7 +108,10 @@ with tab1:
         .reset_index()
     )
 
-    medio_count.columns = ["medio", "cantidad"]
+    medio_count.columns = [
+        "medio",
+        "cantidad"
+    ]
 
     fig = px.bar(
         medio_count,
@@ -125,21 +132,26 @@ with tab1:
 
 with tab2:
 
-    st.subheader("Noticias por categoría")
-
-    categoria_count = (
-        df_filtrado["categoria_predicha"]
-        .value_counts()
-        .reset_index()
+    st.subheader(
+        "Comparación de categorías por medio"
     )
 
-    categoria_count.columns = ["categoria", "cantidad"]
+    categoria_medio = (
+        df_filtrado
+        .groupby(
+            ["medio", "categoria_original"]
+        )
+        .size()
+        .reset_index(name="cantidad")
+    )
 
-    fig = px.pie(
-        categoria_count,
-        names="categoria",
-        values="cantidad",
-        title="Distribución por categoría"
+    fig = px.bar(
+        categoria_medio,
+        x="categoria_original",
+        y="cantidad",
+        color="medio",
+        barmode="stack",
+        title="Categorías por medio"
     )
 
     st.plotly_chart(
@@ -153,28 +165,65 @@ with tab2:
 
 with tab3:
 
-    st.subheader("Distribución de sentimiento")
-
-    sentimiento_count = (
-        df_filtrado["sentimiento"]
-        .value_counts()
-        .reset_index()
+    st.subheader(
+        "Comparación de sentimientos por medio"
     )
 
-    sentimiento_count.columns = ["sentimiento", "cantidad"]
+    sentimiento_medio = (
+        df_filtrado
+        .groupby(
+            ["medio", "sentimiento"]
+        )
+        .size()
+        .reset_index(name="cantidad")
+    )
 
     fig = px.bar(
-        sentimiento_count,
+        sentimiento_medio,
         x="sentimiento",
         y="cantidad",
-        color="sentimiento",
-        title="Distribución de sentimientos"
+        color="medio",
+        barmode="stack",
+        title="Sentimientos por medio"
     )
 
     st.plotly_chart(
         fig,
         width="stretch"
     )
+
+    st.divider()
+
+    st.subheader(
+        "Sentimientos por categoría"
+    )
+
+    categoria_sentimiento = (
+        df_filtrado
+        .groupby(
+            [
+                "categoria_original",
+                "sentimiento"
+            ]
+        )
+        .size()
+        .reset_index(name="cantidad")
+    )
+
+    fig2 = px.bar(
+        categoria_sentimiento,
+        x="categoria_original",
+        y="cantidad",
+        color="sentimiento",
+        barmode="stack",
+        title="Distribución de sentimientos por categoría"
+    )
+
+    st.plotly_chart(
+        fig2,
+        width="stretch"
+    )
+
 
 # ============================================================
 # TAB 4 - FECHAS
@@ -205,115 +254,332 @@ with tab4:
     )
 
 # ============================================================
-# TAB 5 - NOTICIAS DETALLADAS
+# TAB 5 - ACIERTOS DE CATEGORÍA
 # ============================================================
 
 with tab5:
 
-    st.subheader("Noticias detalladas")
+    st.subheader("Acierto de clasificación")
 
-    if len(df_filtrado) == 0:
+    df_acierto = df_filtrado.copy()
 
-        st.warning(
-            "No hay noticias para mostrar."
-        )
+    df_acierto["resultado"] = (
+        df_acierto["categoria_original"]
+        == df_acierto["categoria_predicha"]
+    )
 
-    else:
+    df_acierto["resultado"] = df_acierto["resultado"].map(
+        {
+            True: "Correcta",
+            False: "Incorrecta"
+        }
+    )
 
-        for _, fila in (
-            df_filtrado
-            .sort_values(
-                "fecha",
-                ascending=False
-            )
-            .iterrows()
-        ):
+    conteo = (
+        df_acierto["resultado"]
+        .value_counts()
+        .reset_index()
+    )
 
-            titulo_ventana = (
-                f"{fila['fecha'].date()} | "
-                f"{fila['medio']} | "
-                f"{fila['titulo']}"
-            )
+    conteo.columns = [
+        "resultado",
+        "cantidad"
+    ]
 
-            with st.expander(titulo_ventana):
+    fig = px.pie(
+        conteo,
+        names="resultado",
+        values="cantidad",
+        title="Categoría original vs categoría predicha"
+    )
 
-                col1, col2, col3 = st.columns(3)
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
 
-                with col1:
-                    st.metric(
-                        "Categoría",
-                        fila["categoria_predicha"]
-                    )
+    precision = (
+        (
+            df_acierto["categoria_original"]
+            == df_acierto["categoria_predicha"]
+        ).mean()
+        * 100
+    )
 
-                with col2:
-                    st.metric(
-                        "Sentimiento",
-                        fila["sentimiento"]
-                    )
-
-                with col3:
-                    st.metric(
-                        "Nivel alerta",
-                        fila["nivel_alerta"]
-                    )
-
-                st.markdown("### Resumen generado por LLM")
-                st.info(
-                    fila["resumen_llm"]
-                )
-
-                st.markdown(
-                    "### Justificación del sentimiento"
-                )
-                st.write(
-                    fila["justificacion_sentimiento"]
-                )
-
-                st.markdown(
-                    "### Texto completo"
-                )
-                st.write(
-                    fila["texto"]
-                )
-
-                st.link_button(
-                    "Abrir noticia original",
-                    fila["url"]
-                )
+    st.metric(
+        "Precisión",
+        f"{precision:.2f}%"
+    )
 
 # ============================================================
-# TAB 6 - ALERTAS
+# TAB 6 - NOTICIAS
 # ============================================================
 
 with tab6:
 
-    st.subheader("Alertas críticas")
+    st.subheader("Noticias")
 
-    alertas = df_filtrado[
-        df_filtrado["es_alerta"] == True
+    orden_alerta = {
+        "alta": 3,
+        "media": 2,
+        "baja": 1,
+        "sin alerta": 0
+    }
+
+    noticias = df_filtrado.copy()
+
+    noticias["prioridad"] = (
+        noticias["nivel_alerta"]
+        .str.lower()
+        .map(orden_alerta)
+    )
+
+    noticias = noticias.sort_values(
+        ["prioridad", "palabras_criticas"],
+        ascending=[False, False]
+    )
+
+    for _, fila in noticias.iterrows():
+
+        titulo = (
+            f"{fila['nivel_alerta'].upper()} | "
+            f"{fila['medio']} | "
+            f"{fila['titulo']}"
+        )
+
+        with st.expander(titulo):
+
+            c1, c2, c3 = st.columns(3)
+
+            with c1:
+                st.metric(
+                    "Categoría",
+                    fila["categoria_original"]
+                )
+
+            with c2:
+                st.metric(
+                    "Categoría predicha",
+                    fila["categoria_predicha"]
+                )
+
+            with c3:
+                st.metric(
+                    "Palabras críticas",
+                    fila["palabras_criticas"]
+                )
+
+            st.write("### Sentimiento")
+            st.write(
+                fila["sentimiento"]
+            )
+
+            st.write("### Texto")
+
+            st.write(
+                fila["texto"]
+            )
+
+            st.link_button(
+                "Ver noticia",
+                fila["url"]
+            )
+
+# ============================================================
+# TAB 7 - ALERTAS
+# ============================================================
+
+with tab7:
+
+    st.subheader(
+        "Noticias con alertas"
+    )
+
+    orden_alerta = {
+        "alta": 3,
+        "media": 2,
+        "baja": 1,
+        "sin alerta": 0
+    }
+
+    alertas = df_filtrado.copy()
+
+    alertas["prioridad_alerta"] = (
+        alertas["nivel_alerta"]
+        .str.lower()
+        .map(orden_alerta)
+    )
+
+    alertas = alertas.sort_values(
+        by=[
+            "prioridad_alerta",
+            "palabras_criticas"
+        ],
+        ascending=[
+            False,
+            False
+        ]
+    )
+
+    st.dataframe(
+
+        alertas[
+            [
+                "fecha",
+                "medio",
+                "titulo",
+                "nivel_alerta",
+                "palabras_criticas",
+                "sentimiento"
+            ]
+        ],
+
+        width="stretch"
+    )
+
+# ============================================================
+# TAB 8 - PALABRAS CRÍTICAS
+# ============================================================
+
+with tab8:
+
+    st.subheader(
+        "Palabras críticas por medio"
+    )
+
+    palabras_medio = (
+        df_filtrado
+        .groupby(
+            [
+                "medio",
+                "palabras_criticas"
+            ]
+        )
+        .size()
+        .reset_index(name="cantidad")
+    )
+
+    fig = px.bar(
+        palabras_medio,
+        x="palabras_criticas",
+        y="cantidad",
+        color="medio",
+        barmode="group",
+        title="Cantidad de palabras críticas por medio"
+    )
+
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
+
+# ============================================================
+# TAB 9 - PRECISIÓN POR MEDIO
+# ============================================================
+
+with tab9:
+
+    st.subheader(
+        "Precisión del clasificador por medio"
+    )
+
+    precision_medio = (
+        df_filtrado
+        .assign(
+            acierto=(
+                df_filtrado["categoria_original"]
+                == df_filtrado["categoria_predicha"]
+            )
+        )
+        .groupby(
+            "medio"
+        )["acierto"]
+        .mean()
+        .reset_index()
+    )
+
+    precision_medio["acierto"] *= 100
+
+    fig = px.bar(
+        precision_medio,
+        x="medio",
+        y="acierto",
+        color="medio",
+        text_auto=".1f",
+        title="Precisión por medio (%)"
+    )
+
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
+
+# ============================================================
+# TAB 10 - ALERTAS POR FUENTE
+# ============================================================
+
+with tab10:
+
+    st.subheader(
+        "Comparación de alertas entre medios"
+    )
+
+    orden = [
+        "alta",
+        "media",
+        "baja",
+        "sin alerta"
     ]
 
-    if len(alertas) > 0:
-
-        st.error(
-            f"Se detectaron {len(alertas)} noticias de alerta"
+    alertas_fuente = (
+        df_filtrado
+        .groupby(
+            [
+                "medio",
+                "nivel_alerta"
+            ]
         )
+        .size()
+        .reset_index(name="cantidad")
+    )
 
-        st.dataframe(
-            alertas[
-                [
-                    "fecha",
-                    "medio",
-                    "titulo",
-                    "nivel_alerta",
-                    "sentimiento"
-                ]
-            ],
-            width="stretch"
-        )
+    fig = px.bar(
+        alertas_fuente,
+        x="nivel_alerta",
+        y="cantidad",
+        color="medio",
+        barmode="group",
+        category_orders={
+            "nivel_alerta": orden
+        },
+        title="Distribución de alertas por medio"
+    )
 
-    else:
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
 
-        st.success(
-            "No se detectaron alertas críticas"
-        )
+    st.divider()
+
+    st.subheader(
+        "Composición de alertas por medio"
+    )
+
+    fig2 = px.bar(
+        alertas_fuente,
+        x="medio",
+        y="cantidad",
+        color="nivel_alerta",
+        barmode="stack",
+        category_orders={
+            "nivel_alerta": orden
+        },
+        title="Alertas apiladas por medio"
+    )
+
+    st.plotly_chart(
+        fig2,
+        width="stretch"
+    )
+
