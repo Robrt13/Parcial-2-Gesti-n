@@ -79,28 +79,31 @@ df_filtrado = df[
 # PESTAÑAS
 # ============================================================
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
     [
-        "Medios",
-        "Categorías",
+        "Distribución",
         "Sentimientos",
         "Fechas",
         "Aciertos de categoría",
         "Noticias",
-        "Alertas",
         "Palabras críticas",
-        "Precisión por medio",
         "Alertas por fuente"
     ]
 )
 
 # ============================================================
-# TAB 1 - MEDIOS
+# TAB 1 - DISTRIBUCIÓN
 # ============================================================
 
 with tab1:
 
-    st.subheader("Noticias por medio")
+    # --------------------------------------------------------
+    # Noticias por medio
+    # --------------------------------------------------------
+
+    st.subheader(
+        "Cantidad de noticias por medio"
+    )
 
     medio_count = (
         df_filtrado["medio"]
@@ -126,14 +129,14 @@ with tab1:
         width="stretch"
     )
 
-# ============================================================
-# TAB 2 - CATEGORIAS
-# ============================================================
+    st.divider()
 
-with tab2:
+    # --------------------------------------------------------
+    # Distribución de categorías
+    # --------------------------------------------------------
 
     st.subheader(
-        "Comparación de categorías por medio"
+        "Distribución de categorías por medio"
     )
 
     categoria_medio = (
@@ -160,10 +163,10 @@ with tab2:
     )
 
 # ============================================================
-# TAB 3 - SENTIMIENTOS
+# TAB 2 - SENTIMIENTOS
 # ============================================================
 
-with tab3:
+with tab2:
 
     st.subheader(
         "Comparación de sentimientos por medio"
@@ -180,9 +183,9 @@ with tab3:
 
     fig = px.bar(
         sentimiento_medio,
-        x="sentimiento",
+        x="medio",
         y="cantidad",
-        color="medio",
+        color="sentimiento",
         barmode="stack",
         title="Sentimientos por medio"
     )
@@ -226,10 +229,10 @@ with tab3:
 
 
 # ============================================================
-# TAB 4 - FECHAS
+# TAB 3 - FECHAS
 # ============================================================
 
-with tab4:
+with tab3:
 
     st.subheader("Noticias por fecha")
 
@@ -254,12 +257,14 @@ with tab4:
     )
 
 # ============================================================
-# TAB 5 - ACIERTOS DE CATEGORÍA
+# TAB 4 - ACIERTOS DE CATEGORÍA
 # ============================================================
 
-with tab5:
+with tab4:
 
-    st.subheader("Acierto de clasificación")
+    st.subheader(
+        "Acierto de clasificación"
+    )
 
     df_acierto = df_filtrado.copy()
 
@@ -268,54 +273,112 @@ with tab5:
         == df_acierto["categoria_predicha"]
     )
 
-    df_acierto["resultado"] = df_acierto["resultado"].map(
-        {
-            True: "Correcta",
-            False: "Incorrecta"
-        }
+    df_acierto["resultado"] = (
+        df_acierto["resultado"]
+        .map(
+            {
+                True: "Correcta",
+                False: "Incorrecta"
+            }
+        )
     )
 
-    conteo = (
-        df_acierto["resultado"]
-        .value_counts()
+    # --------------------------------------------------------
+    # Gráfica de aciertos globales
+    # --------------------------------------------------------
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        conteo = (
+            df_acierto["resultado"]
+            .value_counts()
+            .reset_index()
+        )
+
+        conteo.columns = [
+            "resultado",
+            "cantidad"
+        ]
+
+        fig = px.pie(
+            conteo,
+            names="resultado",
+            values="cantidad",
+            title="Categoría original vs categoría predicha"
+        )
+
+        st.plotly_chart(
+            fig,
+            width="stretch"
+        )
+
+    with col2:
+
+        precision_global = (
+            (
+                df_acierto["categoria_original"]
+                == df_acierto["categoria_predicha"]
+            ).mean()
+            * 100
+        )
+
+        st.metric(
+            "Precisión global",
+            f"{precision_global:.2f}%"
+        )
+
+    st.divider()
+
+    # --------------------------------------------------------
+    # Precisión por medio
+    # --------------------------------------------------------
+
+    st.subheader(
+        "Precisión del clasificador por medio"
+    )
+
+    precision_medio = (
+        df_filtrado
+        .assign(
+            acierto=(
+                df_filtrado["categoria_original"]
+                == df_filtrado["categoria_predicha"]
+            )
+        )
+        .groupby(
+            "medio"
+        )["acierto"]
+        .mean()
         .reset_index()
     )
 
-    conteo.columns = [
-        "resultado",
-        "cantidad"
-    ]
+    precision_medio["acierto"] *= 100
 
-    fig = px.pie(
-        conteo,
-        names="resultado",
-        values="cantidad",
-        title="Categoría original vs categoría predicha"
+    fig2 = px.bar(
+        precision_medio,
+        x="medio",
+        y="acierto",
+        color="medio",
+        text_auto=".1f",
+        title="Precisión por medio (%)"
+    )
+
+    fig2.update_yaxes(
+        range=[0, 100]
     )
 
     st.plotly_chart(
-        fig,
+        fig2,
         width="stretch"
     )
 
-    precision = (
-        (
-            df_acierto["categoria_original"]
-            == df_acierto["categoria_predicha"]
-        ).mean()
-        * 100
-    )
-
-    st.metric(
-        "Precisión",
-        f"{precision:.2f}%"
-    )
-
 # ============================================================
-# TAB 6 - NOTICIAS
+# TAB 5 - NOTICIAS
 # ============================================================
 
-with tab6:
+with tab5:
 
     st.subheader("Noticias")
 
@@ -385,63 +448,12 @@ with tab6:
                 fila["url"]
             )
 
-# ============================================================
-# TAB 7 - ALERTAS
-# ============================================================
-
-with tab7:
-
-    st.subheader(
-        "Noticias con alertas"
-    )
-
-    orden_alerta = {
-        "alta": 3,
-        "media": 2,
-        "baja": 1,
-        "sin alerta": 0
-    }
-
-    alertas = df_filtrado.copy()
-
-    alertas["prioridad_alerta"] = (
-        alertas["nivel_alerta"]
-        .str.lower()
-        .map(orden_alerta)
-    )
-
-    alertas = alertas.sort_values(
-        by=[
-            "prioridad_alerta",
-            "palabras_criticas"
-        ],
-        ascending=[
-            False,
-            False
-        ]
-    )
-
-    st.dataframe(
-
-        alertas[
-            [
-                "fecha",
-                "medio",
-                "titulo",
-                "nivel_alerta",
-                "palabras_criticas",
-                "sentimiento"
-            ]
-        ],
-
-        width="stretch"
-    )
 
 # ============================================================
-# TAB 8 - PALABRAS CRÍTICAS
+# TAB 6 - PALABRAS CRÍTICAS
 # ============================================================
 
-with tab8:
+with tab6:
 
     st.subheader(
         "Palabras críticas por medio"
@@ -473,56 +485,13 @@ with tab8:
         width="stretch"
     )
 
-# ============================================================
-# TAB 9 - PRECISIÓN POR MEDIO
-# ============================================================
 
-with tab9:
-
-    st.subheader(
-        "Precisión del clasificador por medio"
-    )
-
-    precision_medio = (
-        df_filtrado
-        .assign(
-            acierto=(
-                df_filtrado["categoria_original"]
-                == df_filtrado["categoria_predicha"]
-            )
-        )
-        .groupby(
-            "medio"
-        )["acierto"]
-        .mean()
-        .reset_index()
-    )
-
-    precision_medio["acierto"] *= 100
-
-    fig = px.bar(
-        precision_medio,
-        x="medio",
-        y="acierto",
-        color="medio",
-        text_auto=".1f",
-        title="Precisión por medio (%)"
-    )
-
-    st.plotly_chart(
-        fig,
-        width="stretch"
-    )
 
 # ============================================================
-# TAB 10 - ALERTAS POR FUENTE
+# TAB 7 - ALERTAS POR FUENTE
 # ============================================================
 
-with tab10:
-
-    st.subheader(
-        "Comparación de alertas entre medios"
-    )
+with tab7:
 
     orden = [
         "alta",
@@ -542,25 +511,6 @@ with tab10:
         .size()
         .reset_index(name="cantidad")
     )
-
-    fig = px.bar(
-        alertas_fuente,
-        x="nivel_alerta",
-        y="cantidad",
-        color="medio",
-        barmode="group",
-        category_orders={
-            "nivel_alerta": orden
-        },
-        title="Distribución de alertas por medio"
-    )
-
-    st.plotly_chart(
-        fig,
-        width="stretch"
-    )
-
-    st.divider()
 
     st.subheader(
         "Composición de alertas por medio"
