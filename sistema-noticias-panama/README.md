@@ -243,7 +243,8 @@ pip install -r requirements.txt
 ```
 
 Instalar Ollama:
-`https://ollama.com/download/windows`
+[Ollama for Windows](`https://ollama.com/download/windows`)
+
 
 ## Ejecución del pipeline
 
