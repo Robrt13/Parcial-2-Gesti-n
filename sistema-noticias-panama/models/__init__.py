@@ -1,0 +1,1 @@
+from .llm_news_analysis import analizar_noticias
