@@ -2,13 +2,13 @@
 
 ## Descripción del proyecto
 
-Este proyecto consiste en el desarrollo de un sistema inteligente para recopilar, procesar, analizar y visualizar noticias publicadas por medios digitales de Panamá. El sistema utiliza técnicas de web scraping, procesamiento de datos, machine learning e inteligencia artificial para clasificar noticias por categoría, analizar su sentimiento y detectar temas críticos que puedan requerir atención.
+Este proyecto consiste en el desarrollo de un sistema inteligente para recopilar, procesar, analizar y visualizar noticias publicadas por medios digitales de Panamá. El sistema utiliza técnicas de web scraping, procesamiento de datos e inteligencia artificial para clasificar noticias por categoría, analizar su sentimiento y detectar aquellas, críticas, que puedan requerir atención.
 
-El objetivo principal es facilitar el análisis de grandes cantidades de información periodística, permitiendo identificar tendencias, temas más mencionados, comportamiento de los medios y noticias con posible impacto social, económico o político.
+El objetivo principal es facilitar el análisis de grandes cantidades de información periodística, permitiendo comparar medios y categorías de noticias según el sentimiento y criticidad del contenido, identificando tendencias, comportamientos y noticias con posible impacto social, económico o político.
 
 ## Problemática
 
-En Panamá se publican diariamente noticias en diferentes medios digitales. Sin embargo, revisar manualmente cada medio puede ser un proceso lento y poco eficiente. Además, no siempre es fácil identificar rápidamente cuáles son los temas más frecuentes, qué sentimiento predomina en las noticias o cuáles publicaciones pueden representar una alerta por tratar temas críticos como protestas, accidentes, salud pública, seguridad, economía o emergencias.
+En Panamá se publican diariamente noticias en diferentes medios digitales. Sin embargo, revisar manualmente cada medio puede ser un proceso lento y poco eficiente. Además, no siempre es fácil identificar rápidamente qué sentimiento predomina en las noticias o cuáles publicaciones pueden representar una alerta por tratar temas críticos como protestas, accidentes, salud pública, seguridad, economía o emergencias.
 
 Por esta razón, se propone un sistema que automatice la recopilación y análisis de noticias nacionales, permitiendo obtener información organizada y visual mediante un dashboard interactivo.
 
@@ -52,10 +52,10 @@ El proyecto está desarrollado principalmente en Python y utiliza las siguientes
 * Pandas
 * Requests
 * BeautifulSoup
-* Scikit-learn
 * Streamlit
 * Plotly
-* NLTK o spaCy
+* spaCy
+* ollama
 * GitHub
 
 ## Estructura del proyecto
@@ -101,16 +101,16 @@ El sistema funciona mediante un pipeline de datos dividido en varias etapas:
 
 ### 1. Ingesta de datos
 
-En esta etapa se recopilan noticias desde diferentes medios digitales panameños utilizando web scraping. Cada scraper extrae información básica de las noticias y la almacena en archivos CSV`.
+En esta etapa se recopilan noticias desde diferentes medios digitales panameños utilizando web scraping. Cada scraper extrae información básica de las noticias y la almacena en archivos CSV, en la carpeta `data/raw/`.
 
 ### 2. Limpieza de datos
 
 Después de recopilar las noticias, se realiza un proceso de limpieza para mejorar la calidad del dataset. Este proceso incluye:
 
-* Eliminación de noticias duplicadas.
+* Union de CSV
 * Eliminación de registros incompletos.
-* Limpieza de caracteres especiales.
-* Conversión de texto a minúsculas.
+* Eliminación de noticias duplicadas.
+* Normalización de texto y categorías
 
 ### 3. Transformación de datos
 
@@ -122,9 +122,11 @@ En esta etapa se generan nuevas columnas útiles para el análisis, como:
 * Estado de alerta.
 * Nivel de alerta.
 
-Y se lematiza el contenido de las noticias para facilitar su análisis posterior por el LLM.
+Y se lematiza el contenido de las noticias para facilitar su análisis posterior por el LLM. El resultado se guarda en `data/processed/noticias_panama_procesadas.csv`
 
-### 4. Análisis con Machine Learning
+### 4. Análisis con Inteligencia Artificial
+
+#### 4.1. Predicción de categorías
 
 El proyecto aplica una técnica de clasificación para organizar las noticias en diferentes categorías, tales como:
 
@@ -133,17 +135,16 @@ El proyecto aplica una técnica de clasificación para organizar las noticias en
 * Deportes
 * Entretenimiento
 * Contenido exclusivo
-* Politica
-* Economia
+* Política
+* Economía
 * Seguridad
 * Salud
-* Educacion
+* Educación
 * Ambiente
-* Tecnologia
+* Tecnología
 * Otro
 
-
-### 5. Análisis de sentimiento
+#### 4.2.Analisis de sentimiento
 
 El sistema clasifica cada noticia según su sentimiento general:
 
@@ -153,7 +154,7 @@ El sistema clasifica cada noticia según su sentimiento general:
 
 Este análisis permite identificar el tono predominante de las noticias y relacionarlo con los temas más mencionados.
 
-### 6. Sistema de alertas
+### 5. Sistema de alertas
 
 El sistema incluye una sección de alertas para detectar noticias relacionadas con temas críticos. Para ello, se utilizan palabras clave como:
 
@@ -170,7 +171,9 @@ El sistema incluye una sección de alertas para detectar noticias relacionadas c
 
 Si una noticia contiene palabras críticas y además presenta un sentimiento negativo, el sistema puede marcarla como una alerta de nivel alto.
 
-### 7. Dashboard interactivo
+El resultado de la predicción de categoría, el análisis de sentimiento y el sistema de alertas se almacena en `data/processed/noticias_panama_analizadas.csv`
+
+### 6. Dashboard interactivo
 
 El dashboard desarrollado en Streamlit permite visualizar los resultados del análisis de forma clara e interactiva.
 
@@ -189,17 +192,17 @@ El dashboard incluye:
 
 | Columna            | Descripción                                         |
 | ------------------ | --------------------------------------------------- |
-| fecha              | Fecha de publicación de la noticia                  |
 | medio              | Medio de comunicación de origen                     |
 | titulo             | Título de la noticia                                |
+| fecha              | Fecha de publicación de la noticia                  |
 | categoria_original | Categoría indicada por el medio, si está disponible |
 | texto              | Resumen o contenido de la noticia                   |
 | url                | Enlace de la noticia                                |
 | categoria_predicha | Categoría asignada por el modelo                    |
-| sentimiento        | Sentimiento de la noticia                           |
 | palabras_criticas  | Cantidad de palabras críticas en el texto           |
-| nivel_alerta       | Nivel de alerta asignado                            |
+| sentimiento        | Sentimiento de la noticia                           |
 | es_alerta          | Indica si la noticia representa una alerta          |
+| nivel_alerta       | Nivel de alerta asignado                            |
 
 ## Instalación del proyecto
 
@@ -239,28 +242,23 @@ Instalar las dependencias:
 pip install -r requirements.txt
 ```
 
+Instalar Ollama:
+`https://ollama.com/download/windows`
+
 ## Ejecución del pipeline
 
 Para ejecutar el pipeline completo de datos:
 
 ```bash
-python pipeline/pipeline_main.py
+python -m pipeline.pipeline_main
 ```
-
-Este comando realiza los siguientes pasos:
-
-1. Ejecuta la ingesta de noticias.
-2. Limpia los datos recopilados.
-3. Transforma el dataset.
-4. Aplica clasificación y análisis de sentimiento.
-5. Genera el archivo final procesado.
 
 ## Ejecución del dashboard
 
 Para iniciar el dashboard en Streamlit:
 
 ```bash
-streamlit run app.py
+streamlit run dashboard/streamlit_app.py
 ```
 
 Luego, el sistema abrirá una interfaz web donde se podrán visualizar las noticias analizadas, los gráficos, filtros y alertas generadas.
@@ -272,7 +270,7 @@ Al finalizar la ejecución del sistema, se espera obtener:
 * Un dataset consolidado de noticias panameñas.
 * Noticias clasificadas automáticamente por categoría.
 * Análisis de sentimiento para cada noticia.
-* Identificación de temas críticos.
+* Alertas asignadas a noticias críticas.
 * Dashboard interactivo con filtros y visualizaciones.
 * Documentación parcial del funcionamiento del proyecto.
 
