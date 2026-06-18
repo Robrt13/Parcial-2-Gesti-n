@@ -16,6 +16,7 @@ def run_pipeline(
         modelo: str,
         analyzed_output: str
     ):
+    print(f"{'='*25} PIPELINE START {'='*25}")
     outputs = ingest_data(ingestion_configs)
     merged_data = merge_csv_data(outputs)
     cleaned_data = clean_data(merged_data)
@@ -23,6 +24,7 @@ def run_pipeline(
     save_to_csv(transformed_data, processed_output)
     analyzed_data = analizar_noticias(transformed_data, cantidad_noticias_por_categoria_por_medio, modelo)
     save_to_csv(analyzed_data, analyzed_output)
+    print(f"{'='*25} PIPELINE END {'='*25}")
 
 
 def main():
