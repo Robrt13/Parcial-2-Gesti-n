@@ -40,7 +40,7 @@ def lemmatize_text(df: pd.DataFrame, nlp, columns: list[str]) -> pd.DataFrame:
 
 
 def transform_data(df: pd.DataFrame) -> pd.DataFrame:
-    print(f"{'='*25}TRANSFORMATION PROCESS {'='*25}")
+    print(f"{'='*25} TRANSFORMATION PROCESS {'='*25}")
     nlp = spacy.load("es_core_news_sm")
     transformed_df = (
         df.copy()

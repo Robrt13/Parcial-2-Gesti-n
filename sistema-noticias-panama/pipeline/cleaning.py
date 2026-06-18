@@ -23,7 +23,7 @@ def normalize_text(text: str) -> str:
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     cleaned_data = df.copy()
-    print(f"{'='*25}CLEANING PROCESS {'='*25}")
+    print(f"{'='*25} CLEANING PROCESS {'='*25}")
 
     cleaned_data = cleaned_data.dropna(subset=["titulo", "texto"])
     cleaned_data = cleaned_data.drop_duplicates(subset=["titulo"])
