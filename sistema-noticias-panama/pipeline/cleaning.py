@@ -2,6 +2,22 @@ import pandas as pd, unicodedata, re
 from pathlib import Path
 from .commons import save_to_csv
 
+CATEGORIAS_PERMITIDAS = [
+    "nacionales",
+    "mundo",
+    "deportes",
+    "entretenimiento",
+    "contenido-exclusivo",
+    "politica",
+    "economia",
+    "seguridad",
+    "salud",
+    "educacion",
+    "ambiente",
+    "tecnologia",
+    "otro",
+]
+
 
 def merge_csv_data(sources: list[str]) -> pd.DataFrame:
     return pd.concat([pd.read_csv(source) for source in sources])
@@ -21,6 +37,38 @@ def normalize_text(text: str) -> str:
     return text
 
 
+def normalize_sentiment(sentiment: str) -> str:
+    sentiment = sentiment.lower().strip()
+
+    if "positivo" in sentiment:
+        return "positivo"
+
+    if "negativo" in sentiment:
+        return "negativo"
+
+    return "neutral"
+
+
+def normalize_category(category: str, allowed_categories: list[str]) -> str:
+    REPLACEMENTS = {
+        "nacional": "nacionales",
+        "internacional": "mundo",
+        "internacionales": "mundo",
+        "deporte": "deportes",
+        "contenido exclusivo": "contenido-exclusivo",
+        "contenido_exclusivo": "contenido-exclusivo",
+        "tecnología": "tecnologia",
+        "educación": "educacion",
+        "economía": "economia",
+        "política": "politica",
+    }
+
+    category = category.lower().strip()
+    category = REPLACEMENTS.get(category, category)
+
+    return category if category in allowed_categories else "otro"
+
+
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     cleaned_data = df.copy()
     print(f"{'='*25} CLEANING PROCESS {'='*25}")
@@ -29,7 +77,11 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     cleaned_data = cleaned_data.drop_duplicates(subset=["titulo"])
     cleaned_data["titulo"] = cleaned_data["titulo"].str.lower().str.strip().apply(normalize_text)
     cleaned_data["texto"] = cleaned_data["texto"].str.lower().str.strip().apply(normalize_text)
-    cleaned_data["categoria_original"] = cleaned_data["categoria_original"].str.lower().str.strip().apply(normalize_text)
+    cleaned_data["categoria_original"] = (
+        cleaned_data["categoria_original"].str.lower().str.strip()
+        .apply(normalize_text)
+        .apply(lambda x: normalize_category(x, CATEGORIAS_PERMITIDAS))
+    )
 
     return cleaned_data
 

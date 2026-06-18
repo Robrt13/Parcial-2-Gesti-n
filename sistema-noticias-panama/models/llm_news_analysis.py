@@ -1,55 +1,8 @@
-import ollama, requests, re, json, pandas as pd
+import ollama, re, json, pandas as pd
 from pathlib import Path
+from pipeline import normalize_category, normalize_sentiment, CATEGORIAS_PERMITIDAS
 from .alert_logic import calcular_alerta
 from .commons import save_to_csv
-
-CATEGORIAS_PERMITIDAS = [
-    "nacionales",
-    "mundo",
-    "deportes",
-    "entretenimiento",
-    "contenido-exclusivo",
-    "politica",
-    "economia",
-    "seguridad",
-    "salud",
-    "educacion",
-    "ambiente",
-    "tecnologia",
-    "otro",
-]
-
-
-def normalizar_sentimiento(sentimiento: str) -> str:
-    sentimiento = sentimiento.lower().strip()
-
-    if "positivo" in sentimiento:
-        return "positivo"
-
-    if "negativo" in sentimiento:
-        return "negativo"
-
-    return "neutral"
-
-
-def normalizar_categoria(categoria: str, categorias_permitidas: list[str]) -> str:
-    REEMPLAZOS = {
-        "nacional": "nacionales",
-        "internacional": "mundo",
-        "internacionales": "mundo",
-        "deporte": "deportes",
-        "contenido exclusivo": "contenido-exclusivo",
-        "contenido_exclusivo": "contenido-exclusivo",
-        "tecnología": "tecnologia",
-        "educación": "educacion",
-        "economía": "economia",
-        "política": "politica",
-    }
-
-    categoria = categoria.lower().strip()
-    categoria = REEMPLAZOS.get(categoria, categoria)
-
-    return categoria if categoria in categorias_permitidas else "otro"
 
 
 def extraer_json(texto: str) -> dict:
@@ -122,15 +75,14 @@ Texto:
     data = extraer_json(respuesta)
 
     return {
-        "sentimiento": normalizar_sentimiento(data.get("sentimiento", "neutral")),
-        "categoria_predicha": normalizar_categoria(data.get("categoria_predicha", "otro"), CATEGORIAS_PERMITIDAS),
+        "sentimiento": normalize_sentiment(data.get("sentimiento", "neutral")),
+        "categoria_predicha": normalize_category(data.get("categoria_predicha", "otro"), CATEGORIAS_PERMITIDAS),
     }
 
 
 def muestrear(df: pd.DataFrame, cantidad: int, ordenar_por: list[str], agrupar_por: list[str]) -> pd.DataFrame:
     muestra = df.copy()
     muestra = muestra.sort_values(by=ordenar_por, ascending=False, na_position="last")
-
     muestra = (
         muestra
             .groupby(agrupar_por, group_keys=False)
