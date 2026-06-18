@@ -123,7 +123,7 @@ def analizar_noticias(df: pd.DataFrame, cantidad_por_categoria_por_medio: int, m
 def main():
     FILE_DIR = Path(__file__).parent
     INPUT = f"{FILE_DIR}/../data/processed/noticias_panama_procesadas.csv"
-    NOTICIAS_POR_CATEGORIA_POR_MEDIO = 4
+    NOTICIAS_POR_CATEGORIA_POR_MEDIO = 10
     MODELO = "qwen3.5:0.8b" # Otros: qwen3.5:0.8b qwen3.5:2b qwen3.5:4b
     OUTPUT = f"{FILE_DIR}/../data/processed/noticias_panama_analizadas.csv"
 

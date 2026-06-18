@@ -56,7 +56,7 @@ def main():
         }
     ]
     PROCESSED_OUTPUT = f"{FILE_DIR}/../data/processed/noticias_panama_procesadas.csv"
-    CANTIDAD_NOTICIAS_POR_CATEGORIA_POR_MEDIO = 5
+    CANTIDAD_NOTICIAS_POR_CATEGORIA_POR_MEDIO = 10
     MODELO = "qwen3.5:0.8b"
     ANALYZED_OUTPUT = f"{FILE_DIR}/../data/processed/noticias_panama_analizadas.csv"
     run_pipeline(
