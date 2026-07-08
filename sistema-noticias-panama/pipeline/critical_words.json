@@ -1,0 +1,315 @@
+[
+    {
+        "HOMICIDIO": {
+            "weight": 10,
+            "lemmas": [
+                "asesinar",
+                "asesinato",
+                "ejecución",
+                "ejecutar",
+                "fallecer",
+                "femicidio",
+                "feminicidio",
+                "homicidio",
+                "matar",
+                "morir",
+                "muerte",
+                "parricidiir",
+                "sicariato",
+                "sicario"
+            ]
+        }
+    },
+    {
+        "MASACRE": {
+            "weight": 10,
+            "lemmas": [
+                "exterminio",
+                "masacre",
+                "matanza"
+            ]
+        }
+    },
+    {
+        "TERRORISMO": {
+            "weight": 10,
+            "lemmas": [
+                "atentado",
+                "bomba",
+                "explosivo",
+                "explosión",
+                "terrorismo",
+                "terrorista"
+            ]
+        }
+    },
+    {
+        "SECUESTRO": {
+            "weight": 9,
+            "lemmas": [
+                "plagio",
+                "privación de libertad",
+                "raptar",
+                "rapto",
+                "secuestrar",
+                "secuestro"
+            ]
+        }
+    },
+    {
+        "VIOLACIÓN": {
+            "weight": 9,
+            "lemmas": [
+                "abuso sexual",
+                "agresión sexual",
+                "violación",
+                "violar"
+            ]
+        }
+    },
+    {
+        "DESAPARICIÓN": {
+            "weight": 9,
+            "lemmas": [
+                "desaparecer",
+                "desaparecido",
+                "desaparición",
+                "no localizado"
+            ]
+        }
+    },
+    {
+        "ROBO": {
+            "weight": 8,
+            "lemmas": [
+                "asaltar",
+                "asalto",
+                "atraco",
+                "hurtar",
+                "hurto",
+                "robar",
+                "saqueo"
+            ]
+        }
+    },
+    {
+        "INCENDIO": {
+            "weight": 8,
+            "lemmas": [
+                "conflagración",
+                "incendiar",
+                "incendio"
+            ]
+        }
+    },
+    {
+        "ACCIDENTE_GRAVE": {
+            "weight": 8,
+            "lemmas": [
+                "accidente",
+                "atropello",
+                "choque",
+                "colisión",
+                "descarrilamiento",
+                "naufragio",
+                "volcamiento",
+                "volcar"
+            ]
+        }
+    },
+    {
+        "EXPLOSIÓN": {
+            "weight": 8,
+            "lemmas": [
+                "detonación",
+                "estallido",
+                "explosión"
+            ]
+        }
+    },
+    {
+        "CORRUPCIÓN": {
+            "weight": 7,
+            "lemmas": [
+                "coima",
+                "corrupción",
+                "desfalco",
+                "enriquecimiento ilícito",
+                "fraude",
+                "malversación",
+                "peculado",
+                "soborno"
+            ]
+        }
+    },
+    {
+        "NARCOTRÁFICO": {
+            "weight": 7,
+            "lemmas": [
+                "cartel",
+                "cocaína",
+                "droga",
+                "estupefaciente",
+                "fentanilo",
+                "heroínar",
+                "marihuán",
+                "microtráfico",
+                "narcotráfico"
+            ]
+        }
+    },
+    {
+        "ARMAS": {
+            "weight": 7,
+            "lemmas": [
+                "arma",
+                "balazo",
+                "disparo",
+                "fusil",
+                "munición",
+                "pistola",
+                "revólver",
+                "rifle",
+                "tiroteo"
+            ]
+        }
+    },
+    {
+        "PROTESTA": {
+            "weight": 6,
+            "lemmas": [
+                "concentración",
+                "huelga",
+                "manifestación",
+                "marcha",
+                "paro",
+                "piquete",
+                "protesta"
+            ]
+        }
+    },
+    {
+        "BLOQUEO_VIAL": {
+            "weight": 6,
+            "lemmas": [
+                "bloqueo",
+                "cierre de vía",
+                "interrupción del tránsito",
+                "tranque",
+                "vía cerrado"
+            ]
+        }
+    },
+    {
+        "VIOLENCIA": {
+            "weight": 6,
+            "lemmas": [
+                "agresión",
+                "golpear",
+                "golpizar",
+                "pelea",
+                "riña",
+                "violencia"
+            ]
+        }
+    },
+    {
+        "INUNDACIÓN": {
+            "weight": 5,
+            "lemmas": [
+                "anegación",
+                "crecido",
+                "desbordamiento",
+                "inundación"
+            ]
+        }
+    },
+    {
+        "DESLIZAMIENTO": {
+            "weight": 5,
+            "lemmas": [
+                "alud",
+                "derrumbe",
+                "deslizamiento",
+                "desprendimiento"
+            ]
+        }
+    },
+    {
+        "TORMENTA": {
+            "weight": 5,
+            "lemmas": [
+                "ciclón",
+                "huracán",
+                "temporal",
+                "tormenta",
+                "tornado",
+                "vendaval"
+            ]
+        }
+    },
+    {
+        "EMERGENCIA": {
+            "weight": 5,
+            "lemmas": [
+                "alerta",
+                "desastre",
+                "emergencia",
+                "evacuación"
+            ]
+        }
+    },
+    {
+        "EPIDEMIA": {
+            "weight": 4,
+            "lemmas": [
+                "brote",
+                "chikungunya",
+                "covid",
+                "denguir",
+                "epidemia",
+                "influenza",
+                "malario",
+                "pandemia",
+                "zika"
+            ]
+        }
+    },
+    {
+        "CRISIS": {
+            "weight": 4,
+            "lemmas": [
+                "colapso",
+                "crisis",
+                "desabastecimiento",
+                "escasez"
+            ]
+        }
+    },
+    {
+        "INVESTIGACIÓN": {
+            "weight": 3,
+            "lemmas": [
+                "acusación",
+                "allanamiento",
+                "captura",
+                "detención",
+                "imputación",
+                "investigación",
+                "operativo"
+            ]
+        }
+    },
+    {
+        "JUSTICIA": {
+            "weight": 3,
+            "lemmas": [
+                "condena",
+                "fiscalía",
+                "juez",
+                "sentencia",
+                "tribunal"
+            ]
+        }
+    }
+]
