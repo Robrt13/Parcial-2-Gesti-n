@@ -1,5 +1,4 @@
-import requests
-import re
+import requests, re
 from pathlib import Path
 from .commons import create_html_parser, save_to_csv
 
