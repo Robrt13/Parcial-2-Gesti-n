@@ -137,7 +137,8 @@ def analizar_noticias(df: pd.DataFrame, cantidad_por_categoria_por_medio: int, m
     verificar_modelo_instalado(modelo)
     
     print(f"{'='*25} SAMPLING {'='*25}")
-    muestra = muestrear(df, cantidad_por_categoria_por_medio, ["fecha"], ["medio", "categoria_original"]).copy()
+    # muestra = muestrear(df, cantidad_por_categoria_por_medio, ["fecha"], ["medio", "categoria_original"]).copy()
+    muestra = df.copy()
     print(f"{'='*25} NEWS TO ANALYZE: {len(muestra)} {'='*25}")
 
     print(f"{'='*25} ANALYSIS PROCESS {'='*25}")
