@@ -2,6 +2,15 @@ import pandas as pd, unicodedata, re
 from pathlib import Path
 from .commons import save_to_csv
 
+REPLACEMENTS = {
+    "nacional": "nacionales",
+    "internacional": "mundo",
+    "internacionales": "mundo",
+    "deporte": "deportes",
+    "contenido exclusivo": "contenido-exclusivo",
+    "contenido_exclusivo": "contenido-exclusivo"
+}
+
 CATEGORIAS_PERMITIDAS = [
     "nacionales",
     "mundo",
@@ -32,41 +41,17 @@ def remove_special_characters(text: str) -> str:
 
 
 def normalize_text(text: str) -> str:
-    text = remove_accents(text)
-    text = remove_special_characters(text)
-    return text
-
-
-def normalize_sentiment(sentiment: str) -> str:
-    sentiment = sentiment.lower().strip()
-
-    if "positivo" in sentiment:
-        return "positivo"
-
-    if "negativo" in sentiment:
-        return "negativo"
-
-    return "neutral"
+    normalized_text = text.lower()
+    normalized_text = normalized_text.strip()
+    normalized_text = remove_accents(normalized_text)
+    normalized_text = remove_special_characters(normalized_text)
+    return normalized_text
 
 
 def normalize_category(category: str, allowed_categories: list[str]) -> str:
-    REPLACEMENTS = {
-        "nacional": "nacionales",
-        "internacional": "mundo",
-        "internacionales": "mundo",
-        "deporte": "deportes",
-        "contenido exclusivo": "contenido-exclusivo",
-        "contenido_exclusivo": "contenido-exclusivo",
-        "tecnología": "tecnologia",
-        "educación": "educacion",
-        "economía": "economia",
-        "política": "politica",
-    }
-
-    category = category.lower().strip()
-    category = REPLACEMENTS.get(category, category)
-
-    return category if category in allowed_categories else "otro"
+    normalized_category = normalize_text(category)
+    normalized_category = REPLACEMENTS.get(normalized_category, normalized_category)
+    return normalized_category if normalized_category in allowed_categories else "otro"
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -75,14 +60,8 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
     cleaned_data = cleaned_data.dropna(subset=["titulo", "texto"])
     cleaned_data = cleaned_data.drop_duplicates(subset=["titulo"])
-    cleaned_data["titulo"] = cleaned_data["titulo"].str.lower().str.strip().apply(normalize_text)
-    cleaned_data["texto"] = cleaned_data["texto"].str.lower().str.strip().apply(normalize_text)
-    cleaned_data["categoria_original"] = (
-        cleaned_data["categoria_original"].str.lower().str.strip()
-        .apply(normalize_text)
-        .apply(lambda x: normalize_category(x, CATEGORIAS_PERMITIDAS))
-    )
-
+    cleaned_data["categoria_original"] = cleaned_data["categoria_original"].apply(lambda x: normalize_category(x, CATEGORIAS_PERMITIDAS))
+    
     return cleaned_data
 
 
