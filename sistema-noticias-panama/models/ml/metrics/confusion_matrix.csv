@@ -1,0 +1,9 @@
+categoria_real,contenido-exclusivo,deportes,economia,entretenimiento,mundo,nacionales,otro,politica
+contenido-exclusivo,6,0,0,0,1,1,0,0
+deportes,0,54,0,0,0,0,2,0
+economia,0,0,19,0,0,1,1,0
+entretenimiento,0,0,0,17,0,0,2,0
+mundo,0,0,0,0,29,0,2,0
+nacionales,0,0,4,0,1,26,6,3
+otro,0,5,2,0,0,7,27,0
+politica,0,0,0,0,1,5,0,12
