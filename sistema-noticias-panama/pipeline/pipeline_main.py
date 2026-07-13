@@ -4,7 +4,7 @@ from scrapers import scrap_laprensa_news_section, CATEGORIAS_lp
 from .ingestion import ingest_data
 from .cleaning import merge_csv_data, clean_data
 from .transformation import transform_data
-from models import analizar_noticias
+from models.llm import analizar_noticias
 from .commons import save_to_csv
 from pathlib import Path
 

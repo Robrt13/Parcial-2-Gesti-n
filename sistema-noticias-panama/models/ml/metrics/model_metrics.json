@@ -1,0 +1,35 @@
+{
+    "fecha_entrenamiento_utc": "2026-07-12T21:27:46.988740+00:00",
+    "dataset": "/mnt/data/noticias_panama_analizadas.csv",
+    "registros_dataset_original": 1196,
+    "registros_utilizados": 1169,
+    "registros_entrenamiento": 935,
+    "registros_prueba": 234,
+    "porcentaje_prueba": 0.2,
+    "random_state": 42,
+    "minimo_registros_por_categoria": 30,
+    "categorias_incluidas": {
+        "contenido-exclusivo": 39,
+        "deportes": 278,
+        "economia": 103,
+        "entretenimiento": 93,
+        "mundo": 156,
+        "nacionales": 201,
+        "otro": 207,
+        "politica": 92
+    },
+    "categorias_excluidas": {
+        "salud": 4,
+        "tecnologia": 23
+    },
+    "version_python": "3.13.5",
+    "version_sklearn": "1.8.0",
+    "version_joblib": "1.5.3",
+    "modelo_seleccionado": "LinearSVC",
+    "criterio_seleccion": "f1_macro",
+    "metricas_holdout": {
+        "accuracy": 0.811965811965812,
+        "f1_macro": 0.8164223759332455,
+        "f1_weighted": 0.8107036012833114
+    }
+}
