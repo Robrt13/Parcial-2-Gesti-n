@@ -21,13 +21,7 @@ def run_pipeline(
     analyzed_output: str,
 ):
     print(f"{'=' * 25} PIPELINE START {'=' * 25}")
-
-    outputs = [
-        f"{Path(__file__).parent}/../data/raw/noticias_tvn.csv",
-        f"{Path(__file__).parent}/../data/raw/noticias_telemetro.csv",
-        f"{Path(__file__).parent}/../data/raw/noticias_laprensa.csv",
-    ]
-    # outputs = ingest_data(ingestion_configs)
+    outputs = ingest_data(ingestion_configs)
     merged_data = merge_csv_data(outputs)
     cleaned_data = clean_data(merged_data)
     transformed_data = transform_data(cleaned_data)
