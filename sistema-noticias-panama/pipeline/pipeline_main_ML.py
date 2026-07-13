@@ -22,7 +22,12 @@ def run_pipeline(
 ):
     print(f"{'=' * 25} PIPELINE START {'=' * 25}")
 
-    outputs = ingest_data(ingestion_configs)
+    outputs = [
+        f"{Path(__file__).parent}/../data/raw/noticias_tvn.csv",
+        f"{Path(__file__).parent}/../data/raw/noticias_telemetro.csv",
+        f"{Path(__file__).parent}/../data/raw/noticias_laprensa.csv",
+    ]
+    # outputs = ingest_data(ingestion_configs)
     merged_data = merge_csv_data(outputs)
     cleaned_data = clean_data(merged_data)
     transformed_data = transform_data(cleaned_data)
@@ -84,8 +89,8 @@ def main():
     processed_output = (
         f"{file_dir}/../data/processed/noticias_panama_procesadas.csv"
     )
-    cantidad_noticias_por_categoria_por_medio = 10
-    modelo = "qwen3.5:0.8b"
+    cantidad_noticias_por_categoria_por_medio = 25
+    modelo = "qwen3.5:4b"
     analyzed_output = (
         f"{file_dir}/../data/processed/noticias_panama_analizadas.csv"
     )
